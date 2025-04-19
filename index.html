@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Günlük Planlayıcı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #5e35b1;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .date-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .date-selector button {
+            background-color: #7e57c2;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .date-selector button:hover {
+            background-color: #5e35b1;
+        }
+
+        #current-date {
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .task-input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #task-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #task-input:focus {
+            outline: none;
+            border-color: #7e57c2;
+        }
+
+        #time-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #add-task-btn {
+            background-color: #5e35b1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        #add-task-btn:hover {
+            background-color: #4527a0;
+        }
+
+        .task-list {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .task-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px;
+            background-color: #7e57c2;
+            color: white;
+            padding: 10px 15px;
+            font-weight: 600;
+        }
+
+        .task-items {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-time {
+            font-weight: 500;
+            color: #5e35b1;
+        }
+
+        .task-text {
+            word-break: break-word;
+        }
+
+        .task-actions button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            transition: all 0.3s;
+        }
+
+        .complete-btn {
+            color: #4caf50;
+        }
+
+        .delete-btn {
+            color: #f44336;
+        }
+
+        .complete-btn:hover {
+            color: #2e7d32;
+        }
+
+        .delete-btn:hover {
+            color: #c62828;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+            background-color: #f9f9f9;
+        }
+
+        .empty-list {
+            padding: 40px 20px;
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #5e35b1;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .notes-section {
+            margin-top: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #notes-input {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        #save-notes-btn {
+            background-color: #5e35b1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        #save-notes-btn:hover {
+            background-color: #4527a0;
+        }
+
+        @media (max-width: 600px) {
+            .task-header, .task-item {
+                grid-template-columns: 70px 1fr 80px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Günlük Planlayıcı</h1>
+            <p>Günlük görevlerinizi organize edin, daha üretken olun!</p>
+        </header>
+
+        <div class="date-selector">
+            <button id="prev-day">← Önceki Gün</button>
+            <div id="current-date">Bugün</div>
+            <button id="next-day">Sonraki Gün →</button>
+        </div>
+
+        <div class="task-input-area">
+            <input type="text" id="task-input" placeholder="Yeni görev ekleyin...">
+            <input type="time" id="time-input">
+            <button id="add-task-btn">Ekle</button>
+        </div>
+
+        <div class="task-list">
+            <div class="task-header">
+                <div>Saat</div>
+                <div>Görev</div>
+                <div>İşlemler</div>
+            </div>
+            <div class="task-items" id="task-items">
+                <div class="empty-list">Bugün için görev eklenmemiş</div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="total-tasks">0</div>
+                <div class="stat-label">Toplam Görev</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="completed-tasks">0</div>
+                <div class="stat-label">Tamamlanan</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="remaining-tasks">0</div>
+                <div class="stat-label">Kalan</div>
+            </div>
+        </div>
+
+        <div class="notes-section">
+            <h2>Notlar</h2>
+            <textarea id="notes-input" placeholder="Bugün için notlarınızı yazın..."></textarea>
+            <button id="save-notes-btn">Notları Kaydet</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tarih işlemleri
+            let currentDate = new Date();
+            const currentDateElem = document.getElementById('current-date');
+            const prevDayBtn = document.getElementById('prev-day');
+            const nextDayBtn = document.getElementById('next-day');
+            
+            // Görev işlemleri
+            const taskInput = document.getElementById('task-input');
+            const timeInput = document.getElementById('time-input');
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const taskItemsContainer = document.getElementById('task-items');
+            
+            // Notlar işlemleri
+            const notesInput = document.getElementById('notes-input');
+            const saveNotesBtn = document.getElementById('save-notes-btn');
+            
+            // İstatistik elementleri
+            const totalTasksElem = document.getElementById('total-tasks');
+            const completedTasksElem = document.getElementById('completed-tasks');
+            const remainingTasksElem = document.getElementById('remaining-tasks');
+            
+            // Yerel depolama anahtarı
+            const getStorageKey = (date) => {
+                return `dailyTasks_${date.toISOString().split('T')[0]}`;
+            };
+            
+            // Tarih formatı
+            const formatDate = (date) => {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                return date.toLocaleDateString('tr-TR', options);
+            };
+            
+            // Günü güncelle
+            const updateDate = () => {
+                currentDateElem.textContent = formatDate(currentDate);
+                loadTasks();
+                loadNotes();
+            };
+            
+            // Görevleri yükle
+            const loadTasks = () => {
+                const storageKey = getStorageKey(currentDate);
+                let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+                
+                // Zaman sırasına göre sırala
+                tasks.sort((a, b) => {
+                    if (a.time < b.time) return -1;
+                    if (a.time > b.time) return 1;
+                    return 0;
+                });
+                
+                renderTasks(tasks);
+                updateStats(tasks);
+            };
+            
+            // Görevleri göster
+            const renderTasks = (tasks) => {
+                if (tasks.length === 0) {
+                    taskItemsContainer.innerHTML = '<div class="empty-list">Bugün için görev eklenmemiş</div>';
+                    return;
+                }
+                
+                taskItemsContainer.innerHTML = '';
+                tasks.forEach((task, index) => {
+                    const taskItem = document.createElement('div');
+                    taskItem.classList.add('task-item');
+                    if (task.completed) {
+                        taskItem.classList.add('completed');
+                    }
+                    
+                    taskItem.innerHTML = `
+                        <div class="task-time">${task.time}</div>
+                        <div class="task-text">${task.text}</div>
+                        <div class="task-actions">
+                            <button class="complete-btn" data-index="${index}">✓</button>
+                            <button class="delete-btn" data-index="${index}">✕</button>
+                        </div>
+                    `;
+                    
+                    taskItemsContainer.appendChild(taskItem);
+                });
+                
+                // Görev işlemlerini ekle
+                document.querySelectorAll('.complete-btn').forEach(btn => {
+                    btn.addEventListener('click', toggleCompleteTask);
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', deleteTask);
+                });
+            };
+            
+            // İstatistikleri güncelle
+            const updateStats = (tasks) => {
+                const total = tasks.length;
+                const completed = tasks.filter(task => task.completed).length;
+                const remaining = total - completed;
+                
+                totalTasksElem.textContent = total;
+                completedTasksElem.textContent = completed;
+                remainingTasksElem.textContent = remaining;
+            };
+            
+            // Görev ekle
+            const addTask = () => {
+                const taskText = taskInput.value.trim();
+                const taskTime = timeInput.value || new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                
+                if (taskText === '') return;
+                
+                const storageKey = getStorageKey(currentDate);
+                let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+                
+                tasks.push({
+                    text: taskText,
+                    time: taskTime,
+                    completed: false,
+                    id: Date.now()
+                });
+                
+                localStorage.setItem(storageKey, JSON.stringify(tasks));
+                taskInput.value = '';
+                timeInput.value = '';
+                loadTasks();
+            };
+            
+            // Görev tamamlama durumu değiştir
+            const toggleCompleteTask = (e) => {
+                const index = e.target.dataset.index;
+                const storageKey = getStorageKey(currentDate);
+                let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+                
+                tasks[index].completed = !tasks[index].completed;
+                localStorage.setItem(storageKey, JSON.stringify(tasks));
+                loadTasks();
+            };
+            
+            // Görevi sil
+            const deleteTask = (e) => {
+                const index = e.target.dataset.index;
+                const storageKey = getStorageKey(currentDate);
+                let tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+                
+                tasks.splice(index, 1);
+                localStorage.setItem(storageKey, JSON.stringify(tasks));
+                loadTasks();
+            };
+            
+            // Notları yükle
+            const loadNotes = () => {
+                const storageKey = `dailyNotes_${currentDate.toISOString().split('T')[0]}`;
+                const notes = localStorage.getItem(storageKey) || '';
+                notesInput.value = notes;
+            };
+            
+            // Notları kaydet
+            const saveNotes = () => {
+                const storageKey = `dailyNotes_${currentDate.toISOString().split('T')[0]}`;
+                localStorage.setItem(storageKey, notesInput.value);
+            };
+            
+            // Event listeners
+            prevDayBtn.addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() - 1);
+                updateDate();
+            });
+            
+            nextDayBtn.addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() + 1);
+                updateDate();
+            });
+            
+            addTaskBtn.addEventListener('click', addTask);
+            
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+            
+            saveNotesBtn.addEventListener('click', saveNotes);
+            
+            // Başlangıçta günü ayarla ve görevleri yükle
+            updateDate();
+        });
+    </script>
+</body>
+</html>
